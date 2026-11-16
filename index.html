@@ -78,7 +78,7 @@ button:disabled{opacity:.5;cursor:default}
   function fromHash(){const k=state.towers.findIndex((t,i)=>location.hash==='#tower-'+(i+1));active=k<0?0:k}
   fromHash();
   window.addEventListener('hashchange',()=>{fromHash();render()});
-  const PH={"214b474586433237aa7bef2836b526b4": "spigot-exploded", "0228cb89ed39538996ba85d3285bd621": "caustic-bottles", "d106e46779980c9b7f8e30089f515fb2": "sink-flush", "f4af053b0194d5b70347b7f6e31f9b0d": "ph-meter", "36fd2078bd6462bc2f16bb229b504f67": "second-bucket", "142d22c0e59ceadad96083f607cbb62a": "red-pump", "18af92349bff56193fe1b5906d88406a": "infeed-on-line1", "066ecf77dcc7085acc8e30fd2f2173d2": "cleaning-lines-wide-s", "555a458f5cfc8b29dfb91595ad39a08b": "tower1-spigots-off", "f233eccae9521dd2c863e4289c1823d4": "valves-b", "06c8368237124ebde195dbc2a746fb79": "valves-a", "62e7c1965c53a9f37aa7f6d9669a7c36": "tap-connectors", "6acd1e7e5d1c80a8e5a40d509b4717b2": "cleaning-lines-closeup-s", "7f55f31535ea848259ec1b10575f6b69": "keg-room-back-wall", "861bd924f6c6a3da2e0f7bd4df2e8ebe": "tower1-jumpers"};
+  const PH={"555a458f5cfc8b29dfb91595ad39a08b": "tower1-spigots-off", "36fd2078bd6462bc2f16bb229b504f67": "second-bucket", "861bd924f6c6a3da2e0f7bd4df2e8ebe": "tower1-jumpers", "066ecf77dcc7085acc8e30fd2f2173d2": "cleaning-lines-wide-s", "f4af053b0194d5b70347b7f6e31f9b0d": "ph-meter", "6acd1e7e5d1c80a8e5a40d509b4717b2": "cleaning-lines-closeup-s", "f233eccae9521dd2c863e4289c1823d4": "valves-b", "18af92349bff56193fe1b5906d88406a": "infeed-on-line1", "7f55f31535ea848259ec1b10575f6b69": "keg-room-back-wall", "142d22c0e59ceadad96083f607cbb62a": "red-pump", "62e7c1965c53a9f37aa7f6d9669a7c36": "tap-connectors", "214b474586433237aa7bef2836b526b4": "spigot-exploded", "d106e46779980c9b7f8e30089f515fb2": "sink-flush", "06c8368237124ebde195dbc2a746fb79": "valves-a", "0228cb89ed39538996ba85d3285bd621": "caustic-bottles"};
   const src=p=>PH[p.id]+'.jpg';
 
   function render(){
@@ -95,7 +95,7 @@ button:disabled{opacity:.5;cursor:default}
     h+='<section class="warn" aria-label="Safety"><strong>Safety first</strong>'+(editing
       ?'<div class="edit"><textarea id="f-warn" aria-label="Safety points, one per line">'+esc(s.warning.join('\n'))+'</textarea></div>'
       :'<ul>'+s.warning.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>')+'</section>';
-    h+='<section class="towers" aria-label="Towers"><p class="tlabel">We clean one tower a week. Pick this week's tower:</p><div class="tabs" role="tablist">'
+    h+='<section class="towers" aria-label="Towers"><p class="tlabel">We clean one tower a week. Pick this week’s tower:</p><div class="tabs" role="tablist">'
       +state.towers.map((t,k)=>'<button role="tab" aria-selected="'+(k===active)+'" class="tab'+(k===active?' on':'')+'" data-tower="'+k+'">'+esc(t.name)+'</button>').join('')+'</div>'
       +(editing
         ?'<div class="edit tedit"><input id="f-tname" value="'+esc(T().name)+'" aria-label="Tower name"><textarea id="f-twhere" aria-label="Where this tower is" placeholder="Where this tower and its lines are" style="min-height:60px">'+esc(T().where)+'</textarea></div>'
