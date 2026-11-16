@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+<title>Beer Line Cleaning</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column of numbered step cards, read top to bottom on a phone behind the bar. */
+:root{
+  --bg:#f3f4f1; --surface:#ffffff; --fg:#1d2420; --muted:#5d6862; --line:#d9ddd8;
+  --accent:#b8740f; --accent-ink:#ffffff; --warn-bg:#fff4d6; --warn-fg:#6b4a00; --danger:#b3261e;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1d2421; --fg:#e8ece9; --muted:#9aa6a0; --line:#2f3935;
+  --accent:#e0a040; --accent-ink:#1a1305; --warn-bg:#3a2e10; --warn-fg:#f5d68a; --danger:#ff8a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1d2421; --fg:#e8ece9; --muted:#9aa6a0; --line:#2f3935;
+  --accent:#e0a040; --accent-ink:#1a1305; --warn-bg:#3a2e10; --warn-fg:#f5d68a; --danger:#ff8a80; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
+#app{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font:600 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 2.6rem/1 var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+.sub{color:var(--muted);margin:0}
+.warn{background:var(--warn-bg);color:var(--warn-fg);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.warn strong{font:700 1.15rem/1.1 var(--display);letter-spacing:.03em;text-transform:uppercase}
+.warn ul{margin:0;padding-left:20px}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;grid-template-columns:44px 1fr;gap:4px 14px}
+.num{grid-row:1/span 3;width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 1.6rem/44px var(--display);text-align:center}
+.step h2{font:700 1.45rem/1.15 var(--display);margin:0;letter-spacing:.01em;align-self:center;min-width:0}
+.step .text{min-width:0;white-space:pre-wrap}
+.photos{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:8px}
+.photos:empty{display:none}
+figure{margin:0;display:flex;flex-direction:column;gap:4px}
+figure img{width:100%;border-radius:8px;display:block;background:var(--line);cursor:zoom-in}
+figcaption{font-size:.85rem;color:var(--muted)}
+.towers{display:flex;flex-direction:column;gap:8px}
+.tlabel{margin:0;font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{font:700 1.15rem/1 var(--display);letter-spacing:.03em;padding:10px 16px}
+.tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.where{margin:0;color:var(--muted)}
+.tedit{display:flex;flex-direction:column;gap:6px}
+.empty{color:var(--muted);margin:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.foot{color:var(--muted);font-size:.85rem}
+/* edit mode */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,.btn{font:600 .9rem/1 var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.danger{color:var(--danger)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+.status{color:var(--muted);font-size:.85rem}
+.edit input,.edit textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.edit .step h2 input{font:700 1.3rem/1.2 var(--display)}
+.edit textarea{min-height:110px;resize:vertical}
+.tools{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.add-photo{display:inline-flex;align-items:center}
+.add-photo input{display:none}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:20;padding:max(16px,env(safe-area-inset-top,0px)) 16px}
+.lightbox img{max-height:100%;max-width:100%;border-radius:6px}
+</style>
+<div id="app"></div>
+<script type="application/json" id="state">{"title":"Beer Line Cleaning","subtitle":"Fiddler's Hearth bar. Caustic clean for the draft lines. Do it once a month.","updated":"2026-11-15","warning":["Caustic burns skin and eyes. Wear chemical gloves and goggles the whole time.","Pour the caustic into the water, never water onto the caustic. We use one bottle per bucket.","Never mix caustic with acid cleaner or any other chemical.","Know where the eyewash and the chemical's safety sheet are before you start."],"towers":[{"name":"Tower 1","where":"At the bar: the tower on the right side (6 spigots). In the keg room: the lines on the back wall, straight ahead.","steps":[{"title":"Turn off the 6 valves on the back wall","text":"Do this first. In the keg room, turn off the 6 valves on the back wall, straight ahead as you walk in. These are Tower 1's lines.\n\nLeave the valves on the left and right walls alone. They belong to the other two towers, which get cleaned on other weeks.\n\nA valve is off when its handle is crossways to the hose, not pointing along it.","photos":[{"id":"06c8368237124ebde195dbc2a746fb79","caption":"Valves in the keg room."},{"id":"f233eccae9521dd2c863e4289c1823d4","caption":"Valves in the keg room."}]},{"title":"Disconnect the keg taps on the back wall","text":"Once the valves are off, disconnect the keg taps for the 6 back-wall lines. Turn each tap handle up to release it, then lift it off the keg. Hang the taps where they won't touch the floor.","photos":[]},{"title":"Go upstairs and take the spigots off the tower","text":"Go back upstairs to the bar. Go to Tower 1: the one with 6 spigots on the right side of the bar.\n\nUse the faucet wrench to unscrew each spigot. On these spigots it's lefty-tighty, righty-loosey: turn right to loosen. Keep the 6 spigots together. You take them downstairs after the lines are hooked up.","photos":[{"id":"555a458f5cfc8b29dfb91595ad39a08b","caption":"After: Tower 1 (6 spigots, right side of the bar) with all spigots off."}]},{"title":"Attach the jumper hoses in pairs","text":"Connect the jumper hoses so each one joins two spigot spots next to each other. The 6-spigot tower takes 3 jumper hoses.\n\nDouble-check that every connection is tight.","photos":[{"id":"861bd924f6c6a3da2e0f7bd4df2e8ebe","caption":"Tower 1 with the 3 jumper hoses on, each joining a pair of spigot spots."}]},{"title":"Find the three tap connectors","text":"Get the three tap connectors. They are the chrome fittings kept on the wire shelf. They are domestic-to-domestic connectors.\n\nTo put one on: push it onto the end and give it a twist clockwise.\nTo take one off: a quick twist counterclockwise.","photos":[{"id":"62e7c1965c53a9f37aa7f6d9669a7c36","caption":"The three tap connectors on the wire shelf."}]},{"title":"Find the two cleaning lines","text":"Go down to the basement. The two cleaning lines hang on the gas tanks just outside the keg room. Each one is a clear hose with a round metal cap on the end.\n\nThe line wrapped with black electrical tape is the in-feed. It feeds the system and connects to the pump. The other line is the out-feed.","photos":[{"id":"066ecf77dcc7085acc8e30fd2f2173d2","caption":"The gas tanks just outside the keg room door. The cleaning lines hang on the tanks."},{"id":"6acd1e7e5d1c80a8e5a40d509b4717b2","caption":"Close-up: the two cleaning lines. The one with black electrical tape (left) is the in-feed that connects to the pump."}]},{"title":"Hook up the tower's 6 lines in the keg room","text":"Take the in-feed hose (the one with black electrical tape) into the keg room. Work along the back wall from the far left:\n\n1. Attach the in-feed to the first keg line (far left).\n2. Use a tap connector to join the purple-taped line (right next to it) to the orange-taped line.\n3. Use a tap connector to join the green-taped line to the white-taped line.\n4. Attach the blue-taped line to the out-feed.\n\nThat's all 3 tap connectors and all 6 lines of Tower 1.\n\nWhen you connect, don't push on the keg tap lever, or you'll get a face full of beer.","photos":[{"id":"18af92349bff56193fe1b5906d88406a","caption":"The in-feed hose (black tape, bottom) hooked up with a tap connector."},{"id":"7f55f31535ea848259ec1b10575f6b69","caption":"In the keg room."}]},{"title":"Take the spigots downstairs and soak them","text":"Take the 6 spigots downstairs.\n\n1. Find the buckets labeled \"Do not use for food – beer tower bucket\". Take a caustic bucket, not the clean one.\n2. Put it in the sink and fill it with water.\n3. Take each spigot apart.\n4. Put all the spigot parts in the water.\n\nThe parts go in before the caustic does, so they soak in the caustic later.","photos":[]},{"title":"Start the pump and check for leaks","text":"1. Find the red pump on the wire shelf. Take the red hose that has the black inlet filter on its end.\n2. Put the filter end in the bucket of water.\n3. Turn the pump on.\n4. Go upstairs and check every connection for leaks.\n\nIf anything leaks: go downstairs and turn the pump off right away. Recheck the leaky connections, then start again.","photos":[{"id":"142d22c0e59ceadad96083f607cbb62a","caption":"The red pump on the wire shelf. The red hose with the black inlet filter (right) goes in the water."}]},{"title":"Flush the lines with water","text":"If nothing leaks, let the pump run until the lines are flushed.\n\nThe exit line is already attached and sits in the sink. First you'll see beer and foam come out. Keep running until it comes out clear and it's mostly water.\n\nTo get the foam out faster: put your finger over the end of the exit line for a few seconds, then let go for a few seconds. Repeat.","photos":[{"id":"d106e46779980c9b7f8e30089f515fb2","caption":"The exit line in the sink, with the bucket next to it."}]},{"title":"Put gloves on and get the caustic","text":"Once the lines run clear and most of the beer and foam is out, put your gloves on.\n\nGet a bottle of the caustic beer line cleaner. It may look like either of the two bottles in the photo.","photos":[{"id":"0228cb89ed39538996ba85d3285bd621","caption":"The caustic can come in either bottle: Micro Matic Alkaline Beer Line Cleaner (left) or Draftec Beer Line Cleaner (right)."}]},{"title":"Pour in the caustic with the pump running","text":"Make sure your gloves are on. This caustic is concentrated.\n\nLeave the pump running. Pour one whole bottle into the water in the bucket.\n\nWatch the exit line in the sink. It can take several minutes, but what comes out will turn from brown to blue.\n\nWhile you wait, watch the water level in the bucket. If it gets too low, the pump loses suction. Add as little water as you can, none if possible, but keep enough in the bucket so the pump stays primed.","photos":[]},{"title":"Recirculate for 30 minutes","text":"When the exit line turns from brown to blue, move the exit line from the sink into the bucket.\n\nNow the caustic and water keep recirculating through all the taps in this tower.\n\nSet a timer for 30 minutes and let it run.","photos":[]},{"title":"Turn off the pump and move the caustic bucket","text":"When the 30-minute timer goes off:\n\n1. Turn off the pump.\n2. Pull the caustic bucket out of the sink and set it on the ground next to the sink. Leave the filter end of the intake hose in the bucket for now.","photos":[]},{"title":"Start the second caustic bucket","text":"1. Get the second caustic bucket (not the clean bucket). Put it in the sink and fill it with water.\n2. Move the intake hose and filter (the one that goes to the pump) out of the first bucket and into the second one.\n3. Turn the pump on for 5 seconds, then off.\n\nThis gets some clean water into the start of the hose, so when it back-flushes it isn't full-strength caustic.","photos":[{"id":"36fd2078bd6462bc2f16bb229b504f67","caption":"Filling the second caustic bucket in the sink. Every tower bucket is labeled \"Do not use for food\"."}]},{"title":"Switch to the clean bucket","text":"1. Pull the second bucket out of the sink. Leave the filter in it.\n2. Get the clean bucket. Check it and make sure it really is clean.\n3. Put the clean bucket in the sink and fill it with water.","photos":[]},{"title":"Flush the lines with clean water","text":"1. Move the intake filter into the clean bucket (the third bucket).\n2. Turn the pump back on.\n\nThe exit hose now goes into the sink, so this water drains away as it flushes the caustic out of the lines.\n\nKeep an eye on the water level in the bucket the whole time. You can leave a slow trickle of water running into it so it doesn't empty.","photos":[]},{"title":"Rinse and reassemble the spigots","text":"While the clean water pumps through, take care of the spigots.\n\n1. Get the first bucket (the one with the spigot parts in it). Carefully dump most of it out in the sink. Don't splash any into the clean bucket that's running, and don't lose any spigot pieces. Dump the second bucket into the sink too, just as carefully.\n2. Pick the spigot pieces out of the bucket.\n3. Put them in the 8-quart container in the basement. Only use the 8-quart that's just for beer tower stuff. Never use a clean one from upstairs.\n4. Rinse them: fill the 8-quart with clean water and dump it out. Do this a few times.\n5. Make sure you have all 7 parts for each spigot, then put the spigots back together in the 8-quart. The photo shows how the parts go together.\n\nKeep checking the water level in the clean bucket while you work. It drains constantly.","photos":[{"id":"214b474586433237aa7bef2836b526b4","caption":"One spigot taken apart: all 7 parts, laid out in the order they go together."}]},{"title":"Check the pH to know the flush is done","text":"Keep running the clean water bucket through the pump until the pH matches.\n\nUse the yellow pH meter. Test the water coming out of the exit line, then test water from the sink faucet. When they match, the caustic is rinsed out. It should read around 7.","photos":[{"id":"f4af053b0194d5b70347b7f6e31f9b0d","caption":"The yellow pH meter. Press ON/OFF to turn it on."}]},{"title":"Turn off the pump","text":"When the pH matches, turn the pump off.","photos":[]},{"title":"Undo the keg room connections and re-tap the kegs","text":"1. Take one of the dirty caustic buckets into the keg room and put it under the connections you made at the start. Some liquid comes out when you take them apart, and the bucket catches it.\n2. Take off all the tap connectors and hoses you connected at the start (quick twist counterclockwise).\n3. Reconnect each keg tap to its keg. Don't push on the lever while you do it, or you'll get a face full of beer.","photos":[]},{"title":"Put the spigots back on the tower","text":"1. Take the spigots upstairs.\n2. Disconnect the jumper hoses from the tower.\n3. Put the spigots back on, starting with the one on the far right and working left. Tighten each one before adding the next, so the wrench has room to fit between them.\n\nIt's lefty-tighty, righty-loosey on these. Tighten them down, but not too tight, or you'll strip the threads.","photos":[]},{"title":"Pour off and check","text":"Pour from each tap until the beer comes out clear with no water. Taste a small sample from each line. Write the date and your initials on the cleaning log.","photos":[]}]},{"name":"Tower 2","where":"","steps":[]},{"name":"Tower 3","where":"","steps":[]}]}</script>
+<script>
+(function(){
+  const app=document.getElementById('app');
+  const STYLE=document.querySelector('style').textContent;
+  const SCRIPT=document.currentScript.textContent;
+  let state=JSON.parse(document.getElementById('state').textContent);
+  let editing=false, dirty=false, busy=false, artifactNS=null, assetsNS=null, canEdit=false;
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let active=0;
+  const T=()=>state.towers[active];
+  function fromHash(){const k=state.towers.findIndex((t,i)=>location.hash==='#tower-'+(i+1));active=k<0?0:k}
+  fromHash();
+  window.addEventListener('hashchange',()=>{fromHash();render()});
+  const PH={"214b474586433237aa7bef2836b526b4": "spigot-exploded", "0228cb89ed39538996ba85d3285bd621": "caustic-bottles", "d106e46779980c9b7f8e30089f515fb2": "sink-flush", "f4af053b0194d5b70347b7f6e31f9b0d": "ph-meter", "36fd2078bd6462bc2f16bb229b504f67": "second-bucket", "142d22c0e59ceadad96083f607cbb62a": "red-pump", "18af92349bff56193fe1b5906d88406a": "infeed-on-line1", "066ecf77dcc7085acc8e30fd2f2173d2": "cleaning-lines-wide-s", "555a458f5cfc8b29dfb91595ad39a08b": "tower1-spigots-off", "f233eccae9521dd2c863e4289c1823d4": "valves-b", "06c8368237124ebde195dbc2a746fb79": "valves-a", "62e7c1965c53a9f37aa7f6d9669a7c36": "tap-connectors", "6acd1e7e5d1c80a8e5a40d509b4717b2": "cleaning-lines-closeup-s", "7f55f31535ea848259ec1b10575f6b69": "keg-room-back-wall", "861bd924f6c6a3da2e0f7bd4df2e8ebe": "tower1-jumpers"};
+  const src=p=>PH[p.id]+'.jpg';
+
+  function render(){
+    const s=state;
+    let h='';
+    if(canEdit){
+      h+='<div class="bar">'+(editing
+        ?'<button class="primary" id="save" '+(busy||!dirty?'disabled':'')+'>Save changes</button><button id="done">Stop editing</button><span class="status" id="status">'+(busy?'Saving…':dirty?'Unsaved changes':'All saved')+'</span>'
+        :'<button id="edit">Edit page</button><span class="status">Only you see this button</span>')+'</div>';
+    }
+    h+='<header><span class="eyebrow">Bar procedure</span>'+(editing
+      ?'<div class="edit"><input id="f-title" value="'+esc(s.title)+'" aria-label="Page title"></div><div class="edit"><textarea id="f-sub" aria-label="Subtitle" style="min-height:60px">'+esc(s.subtitle)+'</textarea></div>'
+      :'<h1>'+esc(s.title)+'</h1><p class="sub">'+esc(s.subtitle)+'</p>')+'</header>';
+    h+='<section class="warn" aria-label="Safety"><strong>Safety first</strong>'+(editing
+      ?'<div class="edit"><textarea id="f-warn" aria-label="Safety points, one per line">'+esc(s.warning.join('\n'))+'</textarea></div>'
+      :'<ul>'+s.warning.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>')+'</section>';
+    h+='<section class="towers" aria-label="Towers"><p class="tlabel">We clean one tower a week. Pick this week's tower:</p><div class="tabs" role="tablist">'
+      +state.towers.map((t,k)=>'<button role="tab" aria-selected="'+(k===active)+'" class="tab'+(k===active?' on':'')+'" data-tower="'+k+'">'+esc(t.name)+'</button>').join('')+'</div>'
+      +(editing
+        ?'<div class="edit tedit"><input id="f-tname" value="'+esc(T().name)+'" aria-label="Tower name"><textarea id="f-twhere" aria-label="Where this tower is" placeholder="Where this tower and its lines are" style="min-height:60px">'+esc(T().where)+'</textarea></div>'
+        :(T().where?'<p class="where">'+esc(T().where)+'</p>':''))+'</section>';
+    if(!T().steps.length){
+      h+='<p class="empty">Steps for '+esc(T().name)+' are not written yet.'+(editing?' <button data-act="ins" data-i="-1">Add the first step</button>':'')+'</p>';
+    }
+    h+='<ol class="steps'+(editing?' edit':'')+'">';
+    T().steps.forEach((st,i)=>{
+      h+='<li class="step"><div class="num" aria-hidden="true">'+(i+1)+'</div>';
+      if(editing){
+        h+='<h2><input data-k="title" data-i="'+i+'" value="'+esc(st.title)+'" aria-label="Step '+(i+1)+' title"></h2>';
+        h+='<div class="text"><textarea data-k="text" data-i="'+i+'" aria-label="Step '+(i+1)+' instructions">'+esc(st.text)+'</textarea></div>';
+      }else{
+        h+='<h2>'+esc(st.title)+'</h2><div class="text">'+esc(st.text)+'</div>';
+      }
+      h+='<div class="photos">'+st.photos.map((p,j)=>'<figure><img src="'+src(p)+'" alt="'+esc(p.caption||st.title)+'" loading="lazy" data-zoom>'+(editing
+        ?'<div class="edit"><input data-k="cap" data-i="'+i+'" data-j="'+j+'" value="'+esc(p.caption||'')+'" placeholder="Caption (optional)" aria-label="Photo caption"></div><button class="danger" data-act="rmphoto" data-i="'+i+'" data-j="'+j+'">Remove photo</button>'
+        :(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':''))+'</figure>').join('')+'</div>';
+      if(editing){
+        h+='<div class="tools"><label class="btn add-photo">Add photo<input type="file" accept="image/*" data-i="'+i+'" multiple></label>'
+          +'<button data-act="up" data-i="'+i+'" '+(i===0?'disabled':'')+'>Move up</button>'
+          +'<button data-act="down" data-i="'+i+'" '+(i===T().steps.length-1?'disabled':'')+'>Move down</button>'
+          +'<button data-act="ins" data-i="'+i+'">Add step after</button>'
+          +'<button class="danger" data-act="del" data-i="'+i+'">Delete step</button></div>';
+      }
+      h+='</li>';
+    });
+    h+='</ol><p class="foot">Last updated '+esc(s.updated)+'</p>';
+    app.innerHTML=h;
+  }
+
+  function setStatus(t){const el=document.getElementById('status');if(el)el.textContent=t}
+  function markDirty(){dirty=true;const b=document.getElementById('save');if(b)b.disabled=busy;setStatus('Unsaved changes')}
+
+  app.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.id==='f-title')state.title=t.value;
+    else if(t.id==='f-sub')state.subtitle=t.value;
+    else if(t.id==='f-tname')T().name=t.value;
+    else if(t.id==='f-twhere')T().where=t.value;
+    else if(t.id==='f-warn')state.warning=t.value.split('\n').map(x=>x.trim()).filter(Boolean);
+    else if(t.dataset.k==='title')T().steps[+t.dataset.i].title=t.value;
+    else if(t.dataset.k==='text')T().steps[+t.dataset.i].text=t.value;
+    else if(t.dataset.k==='cap')T().steps[+t.dataset.i].photos[+t.dataset.j].caption=t.value;
+    else return;
+    markDirty();
+  });
+
+  app.addEventListener('change',async e=>{
+    const t=e.target;
+    if(t.type!=='file'||!t.files.length)return;
+    if(!assetsNS){setStatus('Photo upload is not available here');return}
+    const i=+t.dataset.i;
+    busy=true;setStatus('Uploading photo…');
+    try{
+      for(const f of t.files){
+        const blob=await shrink(f);
+        const r=await assetsNS.upload(blob,{type:'image/jpeg'});
+        T().steps[i].photos.push({id:r.id,caption:''});
+      }
+      busy=false;dirty=true;render();setStatus('Photo added. Tap Save changes.');
+    }catch(err){busy=false;render();setStatus('Upload failed ('+(err&&err.code||'error')+'). Try a smaller photo.')}
+  });
+
+  // Phone photos are huge; scale to 1600px JPEG before upload.
+  function shrink(file){
+    return new Promise((res,rej)=>{
+      const img=new Image();const url=URL.createObjectURL(file);
+      img.onload=()=>{
+        const max=1600,k=Math.min(1,max/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+        c.toBlob(b=>b?res(b):rej({code:'encode'}),'image/jpeg',0.85);
+      };
+      img.onerror=()=>rej({code:'unreadable_image'});img.src=url;
+    });
+  }
+
+  app.addEventListener('click',async e=>{
+    const z=e.target.closest('[data-zoom]');
+    if(z&&!editing){const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img src="'+z.src+'" alt="">';lb.onclick=()=>lb.remove();document.body.appendChild(lb);return}
+    const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.tower!==undefined){const k=+b.dataset.tower;try{history.replaceState(null,'','#tower-'+(k+1))}catch(_){location.hash='tower-'+(k+1)}active=k;render();return}
+    if(b.id==='edit'){editing=true;render();return}
+    if(b.id==='done'){editing=false;render();if(dirty)setTimeout(()=>{},0);return}
+    if(b.id==='save'){save();return}
+    const a=b.dataset.act,i=+b.dataset.i,S=T().steps;
+    if(a==='up'&&i>0)[S[i-1],S[i]]=[S[i],S[i-1]];
+    else if(a==='down'&&i<S.length-1)[S[i+1],S[i]]=[S[i],S[i+1]];
+    else if(a==='ins')S.splice(i+1,0,{title:'New step',text:'',photos:[]});
+    else if(a==='del'){if(b.dataset.armed){S.splice(i,1)}else{b.dataset.armed='1';b.textContent='Tap again to delete';return}}
+    else if(a==='rmphoto')S[i].photos.splice(+b.dataset.j,1);
+    else return;
+    dirty=true;render();
+  });
+
+  function doc(){
+    const json=JSON.stringify(state).replace(/</g,'\\u003c');
+    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+RESET+'</style></head><body>'
+      +'<title>'+esc(state.title)+'</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'
+      +'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">\n'
+      +'<style>'+STYLE+'</style>\n<div id="app"></div>\n<script type="application/json" id="state">'+json+'</scr'+'ipt>\n<script>'+SCRIPT+'</scr'+'ipt></body></html>';
+  }
+  // The platform's own reset, read from the skeleton's first <style> in <head>.
+  const headStyle=document.head&&document.head.querySelector('style');
+  const RESET=headStyle?headStyle.textContent:'';
+
+  async function save(){
+    if(!artifactNS)return;
+    busy=true;render();
+    state.updated=new Date().toISOString().slice(0,10);
+    try{await artifactNS.publish(doc());dirty=false;busy=false;setStatus('Saved')}
+    catch(err){busy=false;render();setStatus(err&&err.code==='conflict'?'Someone else saved first. Page is reloading.':'Save failed ('+(err&&err.code||'error')+')')}
+  }
+
+  render();
+  if(window.claude&&window.claude.use){
+    Promise.all([claude.use('artifact'),claude.use('assets'),claude.use('user')]).then(([a,s,u])=>{
+      artifactNS=a;assetsNS=s;
+      canEdit=!!(a&&u&&u.canEdit&&u.canEdit());
+      if(canEdit)render();
+    }).catch(()=>{});
+  }
+})();
+</script>
+
+</body></html>
